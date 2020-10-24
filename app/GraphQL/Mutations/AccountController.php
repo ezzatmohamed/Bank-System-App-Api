@@ -4,6 +4,18 @@ namespace App\GraphQL\Mutations;
 use App\Models\account;
 use Illuminate\Support\Facades\Auth;
 use DB;
+
+define("banks", [
+    "hsbc",
+    "qnb",
+    "cib"
+  ]);
+  define("types", [
+    "current",
+    "saving",
+    "credit",
+    "joint" 
+  ]);
 class AccountController
 {
     /**
@@ -38,18 +50,25 @@ class AccountController
         try
         {
 
-            $account = new account();
-            $account->type = $args["type"];
-            $account->bank = $args["bank"];
-            $account->currency = $args["currency"];
-            $account->balance = 0;
-            $account->activated = true;
-            // $header = $request->header('Authorization');
-            $account->user_id = Auth::guard('api')->user()->id;
-            $account->save();
-            return $account;
+            if(in_array($args["type"],types) && in_array($args["bank"],banks) )
+            {
+                $account = new account();
+                $account->type = $args["type"];
+                $account->bank = $args["bank"];
+                $account->currency = $args["currency"];
+                $account->balance = 0;
+                $account->activated = true;
+                // $header = $request->header('Authorization');
+                $account->user_id = Auth::guard('api')->user()->id;
+                $account->save();
+                return $account;
+            }
+            else
+            {
+                return false;
+            }
         }catch(Exception $e) {
-            return $e;
+            return false;
         }
 
     }
@@ -60,22 +79,30 @@ class AccountController
         try
         {
 
-            $id = $args["id"];
-            $account = account::find($id);  
-            $account->activated = false;
-            $account->type = $args["type"];
-            $account->bank = $args["bank"];
-            $account->currency = $args["currency"];
-            
-            // $header = $request->header('Authorization');
-            $account->user_id = Auth::guard('api')->user()->id;
-            $account->save();
-            return $account;
+            if(in_array($args["type"],types) && in_array($args["bank"],banks) )
+            {
+                $id = $args["id"];
+                $account = account::find($id);  
+                $account->activated = false;
+                $account->type = $args["type"];
+                $account->bank = $args["bank"];
+                $account->currency = $args["currency"];
+                
+                // $header = $request->header('Authorization');
+                // $account->user_id = Auth::guard('api')->user()->id;
+                $account->save();
+                return $account;
+            }
+            else
+            {
+                return false;
+            }
         }catch(Exception $e) {
-            return $e;
+            return false;
         }
 
     }
+    
     public function __invoke($_, array $args)
     {
         // TODO implement the resolver
