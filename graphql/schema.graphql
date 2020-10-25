@@ -11,6 +11,11 @@ type Query {
     user(id: ID @eq): User @find
     accounts(bank: String ): [Account]  @field(resolver:"AccountController@BankAccounts")  
 
+    # this will filter a user's posts between a set of dates.
+#    transactionsBetweenDates(
+#         start_date: String! @whereBetween(key: "created_at")
+#         end_date: String! @whereBetween(key: "created_at")
+#     ): [Transaction] @field(resolver:"AccountController@BankAccounts")
     # accounts(user_id: Int @eq): [Account] @all
 }
 
@@ -39,7 +44,6 @@ type Mutation{
     
     login( email:String!, password:String! ): String! @field(resolver:"UserController@login")
 
-
     createAccount(
         type:String! ,
         bank: String! ,
@@ -53,6 +57,18 @@ type Mutation{
 
     activate(id:Int!): Int! @field(resolver:"AccountController@activate")
     deactivate(id:Int!): Int! @field(resolver:"AccountController@deactivate")
+
+
+    newTransaction: Int @field(resolver:"TransactionController@create")
+
+    depositMoney(transId:Int! to:Int! balance:String!): String @field(resolver:"TransactionController@deposit")
+    withdrawMoney(transId:Int! from:Int! balance:String!): String @field(resolver:"TransactionController@withdraw")
+    transferMoney(transId:Int! from:Int! to:Int! balance:String!): String @field(resolver:"TransactionController@transfer")
     
-    
+    deleteTransaction(transId:Int!): Int! @field(resolver:"TransactionController@deleteTransaction")
+
 }
+# input CreateDeposit {
+#   to: String!
+#   balance:String!
+# }

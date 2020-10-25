@@ -12,4 +12,10 @@ class account extends Model
     {
         return $this->belongsTo('App\Models\user');
     }
+    public function updateBalance($balance)
+    {
+        $this->balance = $balance;
+        $this->save();
+
+    }
 }
