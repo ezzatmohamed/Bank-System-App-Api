@@ -1,0 +1,52 @@
+
+# extend type Query{
+    
+# #     # this will filter a user's posts between a set of dates.
+
+# #     # accounts(user_id: Int @eq): [Account] @all
+    
+# }
+extend type Query{
+    getTransactions(from:String to:String): [Transaction] @field(resolver:"TransactionController@getTransactions")
+    # transactionsBetweenDates(
+    #     start_date: String! @whereBetween(key: "created_at")
+    #     end_date: String! @whereBetween(key: "created_at")
+    # ): [Transaction] @field(resolver:"TransactionController@getTransactionsByDates")
+}
+type Transaction{
+    id:ID!
+    user_id: Int!
+    withdraws: [Withdraw]@hasMany
+    deposits: [Deposit]@hasMany
+    transfers: [Transfer]@hasMany
+    user:User! @belongsTo
+}
+type Deposit{
+    id:ID!
+    to:Int!
+    balance:String!
+    transaction:Transaction! @belongsTo
+}
+type Withdraw{
+    id:ID!
+    from:Int!
+    balance:String!
+    transaction:Transaction! @belongsTo
+}
+type Transfer{
+    id:ID!
+    to:Int!
+    from:Int!
+    balance:String!
+    transaction:Transaction! @belongsTo
+}
+
+extend type Mutation{
+    newTransaction: Int @field(resolver:"TransactionController@create")
+
+    depositMoney(transId:Int! to:Int! balance:String!): String @field(resolver:"TransactionController@deposit")
+    withdrawMoney(transId:Int! from:Int! balance:String!): String @field(resolver:"TransactionController@withdraw")
+    transferMoney(transId:Int! from:Int! to:Int! balance:String!): String @field(resolver:"TransactionController@transfer")
+    
+    deleteTransaction(transId:Int!): Int! @field(resolver:"TransactionController@deleteTransaction")
+}

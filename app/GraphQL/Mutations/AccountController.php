@@ -103,6 +103,20 @@ class AccountController
 
     }
     
+    // TODO: Implement Middleware Account belongs to user
+    public function getAccountBalance($root,array $args)
+    {
+        try{
+            
+            $account_id = $args['id'];
+            $account = account::find($account_id);
+            return $account->balance;
+        }
+        catch(Exception $e)
+        {
+            return $e;
+        }
+    }
     public function __invoke($_, array $args)
     {
         // TODO implement the resolver

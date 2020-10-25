@@ -32,9 +32,9 @@ class UserController
         {
             $user->api_token=NULL;
             $user->save();
-            return $token;
+            return true;
         }
-        return null;
+        return false;
     }
     public function __invoke($_, array $args)
     {

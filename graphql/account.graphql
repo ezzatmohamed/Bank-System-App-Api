@@ -1,0 +1,32 @@
+
+extend type Query{
+    accounts(bank: String ): [Account]  @field(resolver:"AccountController@BankAccounts")  
+}
+
+type Account{
+    id:ID!
+    bank:String!
+    type:String!
+    user_id: Int!
+    currency:String!
+    user:User! @belongsTo
+}
+
+extend  type Mutation{
+
+    createAccount(
+        type:String! ,
+        bank: String! ,
+        currency: String! ): Account! @field(resolver:"AccountController@create")
+
+     updateAccount(
+        type:String! ,
+        bank: String! ,
+        currency: String! ): Account! @field(resolver:"AccountController@update")
+
+
+    getAccountBalance(id:Int!):String! @field(resolver:"AccountController@getAccountBalance")
+
+    activate(id:Int!): Int! @field(resolver:"AccountController@activate")
+    deactivate(id:Int!): Int! @field(resolver:"AccountController@deactivate")
+}

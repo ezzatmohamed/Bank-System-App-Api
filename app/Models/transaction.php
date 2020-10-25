@@ -16,9 +16,9 @@ class transaction extends Model
     {
         return $this->hasMany('App\Models\withdraw');
     }
-    public function transfer()
+    public function transfers()
     {
-        return $this->hasOne('App\Models\transfer');
+        return $this->hasMany('App\Models\transfer');
     }
 }
 

@@ -14,7 +14,10 @@ class AccountController
     public function BankAccounts($root,array $args)
     {
         if(array_key_exists('bank', $args))
-            $accounts = user::find(Auth::guard('api')->user()->id)->accounts()->where('bank','=',$args['bank'])->get();
+            $accounts = user::find(Auth::guard('api')->user()->id)
+                            ->accounts()
+                            ->where('bank','=',$args['bank'])
+                            ->get();
         else
             $accounts = user::find(Auth::guard('api')->user()->id)->accounts;
         return $accounts;
