@@ -12,6 +12,12 @@ type Account{
     user:User! @belongsTo
 }
 
+type ApiResponse{
+    Message:String!
+    status:String!
+}
+
+
 extend  type Mutation{
 
     createAccount(
