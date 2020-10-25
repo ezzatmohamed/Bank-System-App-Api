@@ -4,6 +4,7 @@ namespace App\GraphQL\Mutations;
 use App\Models\account;
 use Illuminate\Support\Facades\Auth;
 use DB;
+use Illuminate\Support\Facades\Http;
 
 define("banks", [
     "hsbc",
@@ -106,6 +107,7 @@ class AccountController
     // TODO: Implement Middleware Account belongs to user
     public function getAccountBalance($root,array $args)
     {
+            
         try{
             
             $account_id = $args['id'];
