@@ -84,10 +84,8 @@ class AccountController
             {
                 $id = $args["id"];
                 $account = account::find($id);  
-                $account->activated = false;
                 $account->type = $args["type"];
                 $account->bank = $args["bank"];
-                $account->currency = $args["currency"];
                 
                 // $header = $request->header('Authorization');
                 // $account->user_id = Auth::guard('api')->user()->id;

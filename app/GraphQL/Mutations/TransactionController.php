@@ -6,6 +6,7 @@ use App\Models\transaction;
 use App\Models\deposit;
 use App\Models\withdraw;
 use App\Models\transfer;
+use App\Http\Controllers\CurrencyController;
 use App\GraphQl\AccountObserver;
 use Illuminate\Support\Facades\Auth;
 use DB;
@@ -20,6 +21,7 @@ class TransactionController
 
      public function create($root,array $args)
      {
+    
          try{
              
             $user_id = Auth::guard('api')->user()->id;
@@ -54,10 +56,15 @@ class TransactionController
             if( is_null($transaction) || is_null($account) || is_null($to_account) 
                 || $transaction->user_id != $user_id || $account->user_id != $user_id 
                 || !$account->activated || !$to_account->activated 
-                || floatval($account->balance) < floatval($balance)
                 )
                 return false;
-            
+
+            $CurrencyController= new CurrencyController();
+            $NewAmount = $CurrencyController->ConvertCurrency(floatval($balance),strtoupper($account->currency));
+            $to_NewAmount = $CurrencyController->ConvertCurrency(floatval($balance),strtoupper($to_account->currency));
+            if(floatval($account->balance) < floatval($NewAmount))
+                return false;
+
             // Creating New Transfer
             $withdraw = new transfer();
             $withdraw->transaction_id = $trans_id;
@@ -68,8 +75,8 @@ class TransactionController
 
             
             $AccountObserver = new AccountObserver();
-            $AccountObserver->updateBalance($account,$balance,false);
-            $AccountObserver->updateBalance($to_account,$balance,true);
+            $AccountObserver->updateBalance($account,$NewAmount,false);
+            $AccountObserver->updateBalance($to_account,$to_NewAmount,true);
 
             // $NewBalance = floatval($account->balance)-floatval($balance);
             // $account->updateBalance( (string)$NewBalance);
@@ -103,6 +110,7 @@ class TransactionController
                 )
                 return false;
             
+            
             // Creating New Deposit
             $deposit = new deposit();
             $deposit->transaction_id = $trans_id;
@@ -111,8 +119,11 @@ class TransactionController
             $deposit->save();
 
 
+            $CurrencyController= new CurrencyController();
+            $NewAmount = $CurrencyController->ConvertCurrency(floatval($balance),strtoupper($account->currency));
+           
             $AccountObserver = new AccountObserver();
-            $AccountObserver->updateBalance($account,$balance,true);
+            $AccountObserver->updateBalance($account,$NewAmount,true);
             
             return true;
 
@@ -136,8 +147,13 @@ class TransactionController
 
             if( is_null($transaction) || is_null($account) || $transaction->user_id != $user_id 
                 || $account->user_id != $user_id  || !$account->activated
-                || floatval($account->balance) < floatval($balance)
+            
                 )
+                return false;
+
+            $CurrencyController= new CurrencyController();
+            $NewAmount = $CurrencyController->ConvertCurrency(floatval($balance),strtoupper($account->currency));
+            if( floatval($account->balance) < floatval($NewAmount))
                 return false;
             
             // Creating New Withdraw
@@ -149,10 +165,8 @@ class TransactionController
 
             
             $AccountObserver = new AccountObserver();
-            $AccountObserver->updateBalance($account,$balance,false);
-            // // TODO: update account balance
-            // $NewBalance = floatval($account->balance)-floatval($balance);
-            // $account->updateBalance( (string)$NewBalance);
+            $AccountObserver->updateBalance($account,$NewAmount,false);
+
             return true;
 
          }catch(Exception $e)
