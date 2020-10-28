@@ -202,7 +202,11 @@ class TransactionController
             {
                 $balance = $withdraw->balance;   
                 $account = account::find($withdraw->from);
-                $AccountObserver->updateBalance($account,$balance,true);
+                
+                $CurrencyController= new CurrencyController();
+                $NewAmount = $CurrencyController->ConvertCurrency(floatval($balance),strtoupper($account->currency));
+            
+                $AccountObserver->updateBalance($account,$NewAmount,true);
                 $withdraw->delete();
             }
             
@@ -211,26 +215,35 @@ class TransactionController
                 $balance = $transfer->balance;   
                 $from_account = account::find($transfer->from);
                 $to_account = account::find($transfer->to);
-                if( $to_account->balance < $balance )
+
+                $CurrencyController= new CurrencyController();
+                $NewAmount = $CurrencyController->ConvertCurrency(floatval($balance),strtoupper($to_account->currency));
+            
+                if( $to_account->balance < $NewAmount )
                 {
                     DB::rollback();
                     return false;
                 }
-                
-                $AccountObserver->updateBalance($from_account,$balance,true);
-                $AccountObserver->updateBalance($to_account,$balance,false);
+                $from_NewAmount = $CurrencyController->ConvertCurrency(floatval($balance),strtoupper($from_account->currency));
+            
+                $AccountObserver->updateBalance($from_account,$from_NewAmount,true);
+                $AccountObserver->updateBalance($to_account,$NewAmount,false);
                 $transfer->delete();
             }
             foreach($deposits as $deposit)
             {
                 $balance = $deposit->balance;   
                 $account = account::find($deposit->to);
-                if( $account->balance < $balance )
+
+                $CurrencyController= new CurrencyController();
+                $NewAmount = $CurrencyController->ConvertCurrency(floatval($balance),strtoupper($account->currency));
+            
+                if( $account->balance < $NewAmount )
                 {
                     DB::rollback();
                     return false;
                 }
-                $AccountObserver->updateBalance($account,$balance,false);
+                $AccountObserver->updateBalance($account,$NewAmount,false);
                 $deposit->delete();
             }
             

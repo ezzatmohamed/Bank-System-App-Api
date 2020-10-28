@@ -28,7 +28,12 @@ class AccountController
     public function activate($root,array $args)
     {
         $id = $args["id"];
-        $account = account::find($id);  
+        $account = account::find($id); 
+        $user_id  = Auth::guard('api')->user()->id;
+        if($account->user_id != $user_id)
+        {
+            return false;
+        } 
         $account->activated = true;
         $account->save();
         return true;
@@ -40,7 +45,15 @@ class AccountController
     {
         $id = $args["id"];
         $account = account::find($id);  
+
+        $user_id  = Auth::guard('api')->user()->id;
+        if($account->user_id != $user_id)
+        {
+            return false;
+        }
+        
         $account->activated = false;
+        
         $account->save();
         return false;
 
@@ -86,6 +99,13 @@ class AccountController
                 $account = account::find($id);  
                 $account->type = $args["type"];
                 $account->bank = $args["bank"];
+
+                
+                $user_id  = Auth::guard('api')->user()->id;
+                if($account->user_id != $user_id)
+                {
+                    return false;
+                }
                 
                 // $header = $request->header('Authorization');
                 // $account->user_id = Auth::guard('api')->user()->id;
@@ -102,7 +122,6 @@ class AccountController
 
     }
     
-    // TODO: Implement Middleware Account belongs to user
     public function getAccountBalance($root,array $args)
     {
             
@@ -110,6 +129,11 @@ class AccountController
             
             $account_id = $args['id'];
             $account = account::find($account_id);
+            $user_id  = Auth::guard('api')->user()->id;
+            if($account->user_id != $user_id)
+            {
+                return false;
+            }
             return $account->balance;
         }
         catch(Exception $e)
