@@ -1,0 +1,24 @@
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    accounts: [Account]@hasMany
+}
+
+type Query {
+    users: [User!]! @paginate(defaultCount: 10)
+    user(id: ID @eq): User @find
+
+}
+
+type Mutation{
+    signup(
+        name:String! @rules(apply:["required"]),
+        email: String! @rules(apply:["email","unique:users"]),
+        password: String! @rules(apply:["min:6"]) @bcrypt): User! @create
+
+    
+    login( email:String!, password:String! ): String! @field(resolver:"UserController@login")
+    logout: Int! @field(resolver:"UserController@logout")
+}
